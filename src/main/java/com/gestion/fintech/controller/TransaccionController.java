@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transacciones")
@@ -39,14 +40,12 @@ public class TransaccionController {
     }
 
     @GetMapping("/historial/{cuentaId}")
-    public ResponseEntity<Page<Transaccion>> obtenerHistorial(@PathVariable Long cuentaId,
-                                                              @RequestParam(required = false) String tipo,
-                                                              @RequestParam(required = false) LocalDateTime fechaDesde,
-                                                              @RequestParam(required = false) LocalDateTime fechaHasta,
-                                                              Pageable pageable) {
-        Page<Transaccion> historial = transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta, pageable);
+    public ResponseEntity<List<Transaccion>> getHistorial(@PathVariable Long cuentaId,
+                                                          @RequestParam(required = false) String tipo,
+                                                          @RequestParam(required = false) LocalDateTime fechaDesde,
+                                                          @RequestParam(required = false) LocalDateTime fechaHasta) {
+        List<Transaccion> historial = transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta);
         return ResponseEntity.ok(historial);
     }
-
 
 }

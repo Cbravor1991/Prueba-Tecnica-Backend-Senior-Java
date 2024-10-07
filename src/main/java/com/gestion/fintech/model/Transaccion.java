@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 public class Transaccion {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +24,4 @@ public class Transaccion {
 
     @Column(nullable = false)
     private LocalDateTime fecha;
-
-
 }

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TransaccionService {
@@ -81,6 +82,11 @@ public class TransaccionService {
             throw new RuntimeException("Saldo insuficiente en la cuenta origen");
         }
 
+
+        if (!cuentaOrigen.getMoneda().equals(cuentaDestino.getMoneda())) {
+            throw new RuntimeException("Las cuentas deben tener el mismo tipo de moneda para realizar la transferencia");
+        }
+
         cuentaOrigen.setSaldo(cuentaOrigen.getSaldo().subtract(monto));
         cuentaDestino.setSaldo(cuentaDestino.getSaldo().add(monto));
 
@@ -96,8 +102,7 @@ public class TransaccionService {
 
         return transaccionRepository.save(transaccion);
     }
-
-    public Page<Transaccion> obtenerHistorial(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta, Pageable pageable) {
-        return transaccionRepository.findByCuentaOrigenIdAndTipoAndFechaBetween(cuentaId, tipo, fechaDesde, fechaHasta, pageable);
+    public List<Transaccion> obtenerHistorial(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
+        return transaccionRepository.findByCuentaOrigenIdAndTipoAndFechaBetween(cuentaId, tipo, fechaDesde, fechaHasta);
     }
 }
