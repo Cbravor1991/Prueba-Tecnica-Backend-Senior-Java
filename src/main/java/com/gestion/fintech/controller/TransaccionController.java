@@ -1,5 +1,6 @@
 package com.gestion.fintech.controller;
 
+import com.gestion.fintech.dto.ReporteFinancieroDTO;
 import com.gestion.fintech.model.Transaccion;
 import com.gestion.fintech.service.TransaccionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,14 @@ public class TransaccionController {
                                                           @RequestParam(required = false) LocalDateTime fechaHasta) {
         List<Transaccion> historial = transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta);
         return ResponseEntity.ok(historial);
+    }
+
+    @GetMapping("/reportes/{cuentaId}")
+    public ResponseEntity<ReporteFinancieroDTO> generarReporte(@PathVariable Long cuentaId,
+                                                            @RequestParam LocalDateTime fechaDesde,
+                                                            @RequestParam LocalDateTime fechaHasta) {
+        ReporteFinancieroDTO reporte = transaccionService.generarReporteFinanciero(cuentaId, fechaDesde, fechaHasta);
+        return ResponseEntity.ok(reporte);
     }
 
 }

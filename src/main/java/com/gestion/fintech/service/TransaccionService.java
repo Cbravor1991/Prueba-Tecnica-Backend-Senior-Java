@@ -2,6 +2,7 @@ package com.gestion.fintech.service;
 
 import com.gestion.fintech.model.Cuenta;
 import com.gestion.fintech.model.Transaccion;
+import com.gestion.fintech.dto.ReporteFinancieroDTO;
 import com.gestion.fintech.repository.CuentaRepository;
 import com.gestion.fintech.repository.TransaccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +103,40 @@ public class TransaccionService {
 
         return transaccionRepository.save(transaccion);
     }
+
+    @Transactional
     public List<Transaccion> obtenerHistorial(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
         return transaccionRepository.findByCuentaOrigenIdAndTipoAndFechaBetween(cuentaId, tipo, fechaDesde, fechaHasta);
+    }
+
+    @Transactional
+    public ReporteFinancieroDTO generarReporteFinanciero(Long cuentaId, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
+        Cuenta cuenta = cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+
+        List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdAndFechaBetween(cuentaId, fechaDesde, fechaHasta);
+
+        BigDecimal saldoInicial = cuenta.getSaldo();
+        BigDecimal totalDepositos = transacciones.stream()
+                .filter(t -> t.getTipo().equals("DEPOSITO"))
+                .map(Transaccion::getMonto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalRetiros = transacciones.stream()
+                .filter(t -> t.getTipo().equals("RETIRO"))
+                .map(Transaccion::getMonto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal saldoFinal = saldoInicial.add(totalDepositos).subtract(totalRetiros);
+
+        ReporteFinancieroDTO reporte = new ReporteFinancieroDTO();
+        reporte.setSaldoInicial(saldoInicial);
+        reporte.setTotalDepositos(totalDepositos);
+        reporte.setTotalRetiros(totalRetiros);
+        reporte.setSaldoFinal(saldoFinal);
+        reporte.setFechaDesde(fechaDesde);
+        reporte.setFechaHasta(fechaHasta);
+
+        return reporte;
     }
 }

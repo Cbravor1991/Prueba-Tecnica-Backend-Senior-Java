@@ -12,4 +12,6 @@ import java.util.List;
 public interface TransaccionRepository extends JpaRepository<Transaccion, Long> {
     List<Transaccion> findByCuentaOrigenIdAndTipoAndFechaBetween(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta);
 
+    List<Transaccion> findByCuentaOrigenIdAndFechaBetween(Long cuentaId, LocalDateTime fechaDesde, LocalDateTime fechaHasta);
+
 }
