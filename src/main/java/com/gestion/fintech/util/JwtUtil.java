@@ -14,11 +14,13 @@ public class JwtUtil {
 
     Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String nombreCompleto) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("nombreCompleto", nombreCompleto)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))                 .signWith(SignatureAlgorithm.HS256, secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 

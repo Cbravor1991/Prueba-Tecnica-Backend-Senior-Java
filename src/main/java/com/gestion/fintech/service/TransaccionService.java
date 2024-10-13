@@ -8,8 +8,7 @@ import com.gestion.fintech.repository.TransaccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,11 +23,15 @@ public class TransaccionService {
     @Autowired
     private TransaccionRepository transaccionRepository;
 
+
+    public Cuenta obtenerCuentaPorId(Long cuentaId) {
+        return cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+    }
+
     @Transactional
     public Transaccion realizarDeposito(Long cuentaId, BigDecimal monto) {
-        Cuenta cuenta = cuentaRepository.findById(cuentaId)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
-
+        Cuenta cuenta = obtenerCuentaPorId(cuentaId);
         if (monto.compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("El monto no puede ser negativo");
         }
@@ -47,9 +50,7 @@ public class TransaccionService {
 
     @Transactional
     public Transaccion realizarRetiro(Long cuentaId, BigDecimal monto) {
-        Cuenta cuenta = cuentaRepository.findById(cuentaId)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
-
+        Cuenta cuenta = obtenerCuentaPorId(cuentaId);
         if (monto.compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("El monto no puede ser negativo");
         }
@@ -71,19 +72,14 @@ public class TransaccionService {
 
     @Transactional
     public Transaccion realizarTransferencia(Long cuentaOrigenId, Long cuentaDestinoId, BigDecimal monto) {
-        Cuenta cuentaOrigen = cuentaRepository.findById(cuentaOrigenId)
-                .orElseThrow(() -> new RuntimeException("Cuenta origen no encontrada"));
-        Cuenta cuentaDestino = cuentaRepository.findById(cuentaDestinoId)
-                .orElseThrow(() -> new RuntimeException("Cuenta destino no encontrada"));
-
+        Cuenta cuentaOrigen = obtenerCuentaPorId(cuentaOrigenId);
+        Cuenta cuentaDestino = obtenerCuentaPorId(cuentaDestinoId);
         if (monto.compareTo(BigDecimal.ZERO) < 0) {
             throw new RuntimeException("El monto no puede ser negativo");
         }
         if (cuentaOrigen.getSaldo().compareTo(monto) < 0) {
             throw new RuntimeException("Saldo insuficiente en la cuenta origen");
         }
-
-
         if (!cuentaOrigen.getMoneda().equals(cuentaDestino.getMoneda())) {
             throw new RuntimeException("Las cuentas deben tener el mismo tipo de moneda para realizar la transferencia");
         }
@@ -111,9 +107,7 @@ public class TransaccionService {
 
     @Transactional
     public ReporteFinancieroDTO generarReporteFinanciero(Long cuentaId, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
-        Cuenta cuenta = cuentaRepository.findById(cuentaId)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
-
+        Cuenta cuenta = obtenerCuentaPorId(cuentaId);
         List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdAndFechaBetween(cuentaId, fechaDesde, fechaHasta);
 
         BigDecimal saldoInicial = cuenta.getSaldo();

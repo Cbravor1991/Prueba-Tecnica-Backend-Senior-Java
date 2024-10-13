@@ -1,5 +1,7 @@
 package com.gestion.fintech.controller;
 
+import com.gestion.fintech.dto.RegisterDTO;
+import com.gestion.fintech.dto.LoginDTO;
 import com.gestion.fintech.model.Usuario;
 import com.gestion.fintech.service.UsuarioService;
 import com.gestion.fintech.util.JwtUtil;
@@ -22,16 +24,18 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestParam String username, @RequestParam String password) {
-        Usuario usuario = usuarioService.registrarUsuario(username, password);
+    public ResponseEntity<?> register(@RequestBody RegisterDTO request) {
+
+        Usuario usuario = usuarioService.registrarUsuario(request.getUsername(), request.getPassword(), request.getNombreCompleto());
         return ResponseEntity.ok(usuario);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        Optional<Usuario> usuario = usuarioService.autenticarUsuario(username, password);
+    public ResponseEntity<?> login(@RequestBody LoginDTO request) {
+        Optional<Usuario> usuario = usuarioService.autenticarUsuario(request.getUsername(), request.getPassword());
         if (usuario.isPresent()) {
-            String token = jwtUtil.generateToken(usuario.get().getUsername());
+
+            String token = jwtUtil.generateToken(usuario.get().getUsername(), usuario.get().getNombreTitular());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             return ResponseEntity.ok(response);
