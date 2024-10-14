@@ -4,6 +4,7 @@ import com.gestion.fintech.model.Cuenta;
 import com.gestion.fintech.repository.CuentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CuentaService {
@@ -11,11 +12,13 @@ public class CuentaService {
     @Autowired
     private CuentaRepository cuentaRepository;
 
+    @Transactional
     public Cuenta crearCuenta(Cuenta cuenta) {
         cuenta.setNumeroCuenta("CUENTA-" + System.currentTimeMillis());
         return cuentaRepository.save(cuenta);
     }
 
+    @Transactional
     public Cuenta actualizarCuenta(Long id, Cuenta cuenta) {
         Cuenta cuentaExistente = cuentaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
@@ -24,10 +27,10 @@ public class CuentaService {
         return cuentaRepository.save(cuentaExistente);
     }
 
+    @Transactional
     public void eliminarCuenta(Long id) {
         cuentaRepository.deleteById(id);
     }
-
 
     public Cuenta obtenerCuentaPorId(Long id) {
         return cuentaRepository.findById(id)

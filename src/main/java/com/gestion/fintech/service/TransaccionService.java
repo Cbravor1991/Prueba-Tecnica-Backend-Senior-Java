@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +22,6 @@ public class TransaccionService {
     @Autowired
     private TransaccionRepository transaccionRepository;
 
-
     public Cuenta obtenerCuentaPorId(Long cuentaId) {
         return cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
@@ -32,8 +30,8 @@ public class TransaccionService {
     @Transactional
     public Transaccion realizarDeposito(Long cuentaId, BigDecimal monto) {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
-        if (monto.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("El monto no puede ser negativo");
+        if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El monto debe ser positivo");
         }
 
         cuenta.setSaldo(cuenta.getSaldo().add(monto));
@@ -51,8 +49,8 @@ public class TransaccionService {
     @Transactional
     public Transaccion realizarRetiro(Long cuentaId, BigDecimal monto) {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
-        if (monto.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("El monto no puede ser negativo");
+        if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El monto debe ser positivo");
         }
         if (cuenta.getSaldo().compareTo(monto) < 0) {
             throw new RuntimeException("Saldo insuficiente");
@@ -74,8 +72,9 @@ public class TransaccionService {
     public Transaccion realizarTransferencia(Long cuentaOrigenId, Long cuentaDestinoId, BigDecimal monto) {
         Cuenta cuentaOrigen = obtenerCuentaPorId(cuentaOrigenId);
         Cuenta cuentaDestino = obtenerCuentaPorId(cuentaDestinoId);
-        if (monto.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException("El monto no puede ser negativo");
+
+        if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El monto debe ser positivo");
         }
         if (cuentaOrigen.getSaldo().compareTo(monto) < 0) {
             throw new RuntimeException("Saldo insuficiente en la cuenta origen");
@@ -100,12 +99,12 @@ public class TransaccionService {
         return transaccionRepository.save(transaccion);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Transaccion> obtenerHistorial(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
         return transaccionRepository.findByCuentaOrigenIdAndTipoAndFechaBetween(cuentaId, tipo, fechaDesde, fechaHasta);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ReporteFinancieroDTO generarReporteFinanciero(Long cuentaId, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
         List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdAndFechaBetween(cuentaId, fechaDesde, fechaHasta);

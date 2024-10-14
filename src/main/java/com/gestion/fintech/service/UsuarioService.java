@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,7 +20,12 @@ public class UsuarioService implements UserDetailsService {
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @Transactional
     public Usuario registrarUsuario(String username, String password, String nombreCompleto) {
+        if (usuarioRepository.findByUsername(username).isPresent()) {
+            throw new RuntimeException("El usuario ya existe.");
+        }
+
         Usuario usuario = new Usuario();
         usuario.setUsername(username);
         usuario.setPasswordHash(passwordEncoder.encode(password));
@@ -38,7 +44,6 @@ public class UsuarioService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        // Busca el usuario en el repositorio
         return usuarioRepository.findByUsername(username)
                 .map(usuario -> org.springframework.security.core.userdetails.User
                         .withUsername(usuario.getUsername())
@@ -52,7 +57,6 @@ public class UsuarioService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
     }
 
-    // Método agregado para obtener un usuario por su nombre de usuario
     public Optional<Usuario> obtenerUsuarioPorUsername(String username) {
         return usuarioRepository.findByUsername(username);
     }
