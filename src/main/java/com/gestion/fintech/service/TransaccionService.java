@@ -8,7 +8,7 @@ import com.gestion.fintech.repository.TransaccionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.gestion.fintech.exception.TransaccionException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +31,7 @@ public class TransaccionService {
     public Transaccion realizarDeposito(Long cuentaId, BigDecimal monto) {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("El monto debe ser positivo");
+            throw new TransaccionException("El monto debe ser positivo");
         }
 
         cuenta.setSaldo(cuenta.getSaldo().add(monto));
@@ -50,10 +50,10 @@ public class TransaccionService {
     public Transaccion realizarRetiro(Long cuentaId, BigDecimal monto) {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("El monto debe ser positivo");
+            throw new TransaccionException("El monto debe ser positivo");
         }
         if (cuenta.getSaldo().compareTo(monto) < 0) {
-            throw new RuntimeException("Saldo insuficiente");
+            throw new TransaccionException("Saldo insuficiente");
         }
 
         cuenta.setSaldo(cuenta.getSaldo().subtract(monto));
@@ -74,13 +74,13 @@ public class TransaccionService {
         Cuenta cuentaDestino = obtenerCuentaPorId(cuentaDestinoId);
 
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("El monto debe ser positivo");
+            throw new TransaccionException("El monto debe ser positivo");
         }
         if (cuentaOrigen.getSaldo().compareTo(monto) < 0) {
-            throw new RuntimeException("Saldo insuficiente en la cuenta origen");
+            throw new TransaccionException("Saldo insuficiente en la cuenta origen");
         }
         if (!cuentaOrigen.getMoneda().equals(cuentaDestino.getMoneda())) {
-            throw new RuntimeException("Las cuentas deben tener el mismo tipo de moneda para realizar la transferencia");
+            throw new TransaccionException("Las cuentas deben tener el mismo tipo de moneda para realizar la transferencia");
         }
 
         cuentaOrigen.setSaldo(cuentaOrigen.getSaldo().subtract(monto));
