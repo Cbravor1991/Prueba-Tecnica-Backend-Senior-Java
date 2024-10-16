@@ -7,6 +7,9 @@ import com.gestion.fintech.repository.CuentaRepository;
 import com.gestion.fintech.repository.TransaccionRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.gestion.fintech.exception.TransaccionException;
@@ -30,14 +33,11 @@ public class TransaccionService {
 
     @PostConstruct
     public void init() {
-        // Imprimir la implementación de SLF4J
         System.out.println("SLF4J Logger Implementation: " + LoggerFactory.getILoggerFactory().getClass());
     }
 
-
     public Cuenta obtenerCuentaPorId(Long cuentaId) {
         logger.info("Obteniendo cuenta con ID: {}", cuentaId);
-
         return cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> {
                     logger.error("Cuenta no encontrada: ID {}", cuentaId);
@@ -135,30 +135,30 @@ public class TransaccionService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transaccion> obtenerHistorial(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
-        logger.info("Obteniendo historial de transacciones para la cuenta ID: {}, tipo: {}, desde: {}, hasta: {}", cuentaId, tipo, fechaDesde, fechaHasta);
-        List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdAndTipoAndFechaBetween(cuentaId, tipo, fechaDesde, fechaHasta);
-        logger.info("Historial obtenido: {} transacciones encontradas", transacciones.size());
-        return transacciones;
+    public List<Transaccion> obtenerHistorial(Long cuentaId, String tipo, LocalDateTime fechaDesde, LocalDateTime fechaHasta, int page, int size) {
+        logger.info("Obteniendo historial de transacciones para la cuenta ID: {}, tipo: {}, desde: {}, hasta: {}, página: {}, tamaño: {}", cuentaId, tipo, fechaDesde, fechaHasta, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdAndTipoAndFechaBetween(cuentaId, tipo, fechaDesde, fechaHasta, pageable);
+        logger.info("Historial obtenido: {} transacciones encontradas", transacciones.getTotalElements());
+
+
+        return transacciones.getContent();
     }
 
     @Transactional(readOnly = true)
     public ReporteFinancieroDTO generarReporteFinanciero(Long cuentaId, LocalDateTime fechaDesde, LocalDateTime fechaHasta) {
         logger.info("Generando reporte financiero para la cuenta ID: {}, desde: {}, hasta: {}", cuentaId, fechaDesde, fechaHasta);
+
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
-        List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenIdAndFechaBetween(cuentaId, fechaDesde, fechaHasta);
+
+        BigDecimal totalDepositos = transaccionRepository.sumarMontosPorTipo(cuentaId, "DEPOSITO", fechaDesde, fechaHasta);
+        BigDecimal totalRetiros = transaccionRepository.sumarMontosPorTipo(cuentaId, "RETIRO", fechaDesde, fechaHasta);
+
+        totalDepositos = totalDepositos != null ? totalDepositos : BigDecimal.ZERO;
+        totalRetiros = totalRetiros != null ? totalRetiros : BigDecimal.ZERO;
+
 
         BigDecimal saldoInicial = cuenta.getSaldo();
-        BigDecimal totalDepositos = transacciones.stream()
-                .filter(t -> t.getTipo().equals("DEPOSITO"))
-                .map(Transaccion::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalRetiros = transacciones.stream()
-                .filter(t -> t.getTipo().equals("RETIRO"))
-                .map(Transaccion::getMonto)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         BigDecimal saldoFinal = saldoInicial.add(totalDepositos).subtract(totalRetiros);
 
         ReporteFinancieroDTO reporte = new ReporteFinancieroDTO();
@@ -170,6 +170,7 @@ public class TransaccionService {
         reporte.setFechaHasta(fechaHasta);
 
         logger.info("Reporte financiero generado exitosamente para la cuenta ID: {}", cuentaId);
+
         return reporte;
     }
 }

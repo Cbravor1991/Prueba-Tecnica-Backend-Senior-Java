@@ -95,24 +95,29 @@ public class TransaccionController {
     public ResponseEntity<List<Transaccion>> getHistorial(@PathVariable Long cuentaId,
                                                           @RequestParam(required = false) String tipo,
                                                           @RequestParam(required = false) LocalDateTime fechaDesde,
-                                                          @RequestParam(required = false) LocalDateTime fechaHasta) {
+                                                          @RequestParam(required = false) LocalDateTime fechaHasta,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
         try {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
             Optional<Usuario> usuarioOpt = usuarioService.obtenerUsuarioPorUsername(username);
             if (usuarioOpt.isEmpty()) {
                 return ResponseEntity.status(404).body(null);
             }
+
             String nombreTitular = usuarioOpt.get().getNombreTitular();
             Cuenta cuenta = transaccionService.obtenerCuentaPorId(cuentaId);
             if (!cuenta.getTitular().equals(nombreTitular)) {
                 return ResponseEntity.status(403).body(null);
             }
-            List<Transaccion> historial = transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta);
+
+            List<Transaccion> historial = transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta, page, size);
             return ResponseEntity.ok(historial);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
     }
+
 
     @GetMapping("/reportes/{cuentaId}")
     public ResponseEntity<ReporteFinancieroDTO> generarReporte(@PathVariable Long cuentaId,
