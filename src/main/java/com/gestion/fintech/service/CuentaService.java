@@ -45,6 +45,7 @@ public class CuentaService {
 
         cuentaExistente.setTitular(cuenta.getTitular());
         cuentaExistente.setMoneda(cuenta.getMoneda());
+        cuentaExistente.setSaldo(cuenta.getSaldo());
 
         Cuenta cuentaActualizada = cuentaRepository.save(cuentaExistente);
         logger.info("Cuenta actualizada exitosamente con ID: {}", id);

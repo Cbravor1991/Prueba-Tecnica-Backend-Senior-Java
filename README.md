@@ -310,7 +310,7 @@ y se abrira  el siguiente menú donde colocar el token:
 
 ### Response:
 
-- **Status 200:** Depósito realizado exitosamente.
+- **Status 200:** OK
 
   ```json
   {
@@ -348,7 +348,7 @@ y se abrira  el siguiente menú donde colocar el token:
 
 ### Response:
 
-- **Status 200:** Retiro realizado exitosamente.
+- **Status 200:** OK
 
 ```json
 
@@ -390,7 +390,7 @@ Para realizar una trasferencia en necesario tener más de una cuenta sino dara e
 
 ### Response:
 
-- **Status 200:** Transferencia realizado exitosamente.
+- **Status 200:** OK
 ```json
 {
   "id": 4,
@@ -748,6 +748,11 @@ Además, se utilizan consultas optimizadas, como la siguiente consulta personali
 @Query("SELECT SUM(t.monto) FROM Transaccion t WHERE t.cuentaOrigenId = :cuentaId AND t.tipo = :tipo AND t.fecha BETWEEN :fechaDesde AND :fechaHasta")
 BigDecimal sumarMontosPorTipo(@Param("cuentaId") Long cuentaId, @Param("tipo") String tipo, @Param("fechaDesde") LocalDateTime fechaDesde, @Param("fechaHasta") LocalDateTime fechaHasta);
 ```
+### Paginación
+
+Para manejar grandes volúmenes de datos de manera eficiente, se ha implementado la paginación en las consultas. Esto permite dividir los resultados en "páginas" más pequeñas, lo que mejora la velocidad de respuesta de las consultas y reduce la carga en el sistema.
+
+En el método `obtenerHistorial`, por ejemplo, se utiliza la clase `Pageable` para especificar el número de página y el tamaño de la página, permitiendo recuperar solo una porción de las transacciones solicitadas.
 
 Estas optimizaciones permiten que las operaciones como la generación de reportes financieros y el historial de transacciones se ejecuten de manera eficiente, incluso con grandes volúmenes de datos, reduciendo considerablemente la carga en el sistema y mejorando el tiempo de respuesta en consultas complejas.
 

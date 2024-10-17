@@ -26,7 +26,6 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping("/api/transacciones")
 @Tag(name = "Gestión de Transacciones", description = "Operaciones para realizar depósitos, retiros, transferencias y consultar transacciones. Todos los endpoints requieren autenticación con token JWT.")
-@SecurityRequirement(name = "bearerAuth")
 public class TransaccionController {
 
     @Autowired
