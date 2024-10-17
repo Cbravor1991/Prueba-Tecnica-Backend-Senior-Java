@@ -61,6 +61,7 @@ La **Fintech API** es una aplicación diseñada para gestionar transacciones fin
 - **Auditoría y seguridad**: Implementar un sistema de auditoría y registro de logs para garantizar la seguridad y el seguimiento de las operaciones realizadas.
 
 ### Estructura del Proyecto
+### Estructura del Proyecto
 
 El proyecto está estructurado de la siguiente manera:
 
@@ -69,6 +70,15 @@ El proyecto está estructurado de la siguiente manera:
 - **Repositorios**: Manejan la persistencia de datos utilizando JPA y se comunican con la base de datos.
 - **Modelos**: Definen las entidades que representan los datos dentro del sistema.
 - **Configuraciones**: Contienen la configuración de seguridad, programación asíncrona y Swagger para la documentación de la API.
+- **Filtros de Seguridad**: Implementan la autenticación JWT mediante el filtro `JwtAuthenticationFilter`, que se 
+encarga de validar el token en las solicitudes entrantes. 
+Este filtro extrae el token del encabezado de autorización, verifica su validez y, si es válido, establece el 
+contexto de seguridad para el usuario autenticado.
+- **Manejo de Excepciones**: Se utiliza una clase de manejo de excepciones global (`GlobalExceptionHandler`) que captura y 
+maneja las excepciones específicas del negocio, como `TransaccionException`, `CuentaException` y `UsuarioException`. 
+ Esto permite devolver respuestas HTTP adecuadas según el tipo de error ocurrido, mejorando la claridad y el manejo de errores en la API.
+- **Utilidades**: Contiene la clase `JwtUtil`, que se encarga de generar y validar tokens JWT. Esta clase incluye métodos para crear un nuevo token a partir de un nombre de usuario y otros datos, validar la autenticidad del token y extraer las reclamaciones (claims) del mismo.
+La clase también verifica si el token ha expirado, lo que garantiza la seguridad de las operaciones en la API.
 
 Esta estructura modular permite un fácil mantenimiento y escalabilidad, facilitando la adición de nuevas funcionalidades en el futuro.
 
@@ -129,7 +139,7 @@ el proyecto si se accede en el navegador a la siguiente direccion
 http://localhost:8080/swagger-ui/index.html#/
 ```
 
-y de esta forma se puede acceder a la interfaz que brinda el mismo donde se pueden ver y probar todos los endpoints,
+se puede acceder de esta forma a la interfaz que brinda el mismo donde se pueden ver y probar todos los endpoints,
 el mismo esta configurado de tal manera que se pueda, realizar la autorización a los endpoints confidenciales 
 utilizando el token.
 ![documentacion1](./imagenes/doc1.png)
@@ -203,8 +213,8 @@ Para realiza una prueba manual se pueden ejecutar los endpoints en el siguiente 
 
 ## 3.2. Endpoints de gestión de cuentas
 Para acceder a los siguientes endpoints protegidos, es necesario autenticarse utilizando un token Bearer.
-Esto se realiza añadiendo el token en el header Authorization en el siguiente seleccionando el candado, se abrira
-el siguiente menú donde colocar el token:
+Esto se realiza añadiendo el token en el header Authorization para esto será necesario seleccionar el candado , 
+y se abrira  el siguiente menú donde colocar el token:
 
 ![documentacion3](./imagenes/doc3.png)
 
@@ -277,18 +287,21 @@ el siguiente menú donde colocar el token:
 - **204 No Content**
 - **403 Forbidden**
 
-## 3.1 Transacciones
+## 3.3 Transacciones
 
 Para acceder a los siguientes endpoints protegidos, es necesario autenticarse utilizando un token Bearer.
+Esto se realiza añadiendo el token en el header Authorization para esto será necesario seleccionar el candado ,
+y se abrira  el siguiente menú donde colocar el token:
 
-### 3.1.1 Realizar un Depósito
+![documentacion3](./imagenes/doc3.png)
+
+### 3.3.1 Realizar un Depósito
 
 - **Endpoint:** `POST /api/transacciones/deposito/{cuentaId}`
 - **Descripción:** Permite realizar un depósito en la cuenta especificada.
 ### Path Variable
 - **id** (requerido): El ID de la cuenta que se desea depositar dinero.
 
-- 
 - **Request Body:**
   ```json
   {
@@ -319,7 +332,7 @@ Para acceder a los siguientes endpoints protegidos, es necesario autenticarse ut
 
 
 
-### 3.1.2. Realizar un Retiro
+### 3.3.2. Realizar un Retiro
 
 **Endpoint:** `POST /api/transacciones/retiro/{cuentaId}`  
 **Descripción:** Realiza un retiro de la cuenta especificada.
@@ -358,7 +371,7 @@ Para acceder a los siguientes endpoints protegidos, es necesario autenticarse ut
 
 ```
 
-### 3.1.3 Realizar una Transferencia
+### 3.3.3 Realizar una Transferencia
 
 Para realizar una trasferencia en necesario tener más de una cuenta sino dara error:
 
@@ -371,7 +384,7 @@ Para realizar una trasferencia en necesario tener más de una cuenta sino dara e
 ```json
 {
 "monto": 300.00,
-"cuentaDestinoId": 5
+"cuentaDestinoId": 4
 }
 ```
 
@@ -397,7 +410,7 @@ Para realizar una trasferencia en necesario tener más de una cuenta sino dara e
 ```
 
 
-## 3.1.4. Obtener Historial de Transacciones
+## 3.3.4. Obtener Historial de Transacciones
 En caso que no se pasen datos que coincian se devolvera una lista vacia.
 
 **Endpoint:** `GET /api/transacciones/historial/{cuentaId}`  
@@ -445,7 +458,7 @@ En caso que no se pasen datos que coincian se devolvera una lista vacia.
 ```
 
 
-## 3.1.5. Generar Reporte Financiero
+## 3.3.5. Generar Reporte Financiero
 
 **Endpoint:** `GET /api/transacciones/reportes/{cuentaId}`  
 **Descripción:** Genera un reporte financiero para una cuenta en un rango de fechas.
@@ -565,6 +578,12 @@ aunque esto en el enunciado de la prueba solo se solicitaba para el servicio de 
   - **Excepción**: `UsuarioException`
     - Mensaje: "Usuario no encontrado: {username}"
 
+### Manejo de Errores
+
+En caso de errores durante el proceso de autenticación o autorización (por ejemplo, token inválido o cuenta no encontrada), 
+se utilizan excepciones personalizadas y un controlador global de excepciones (`GlobalExceptionHandler`) 
+para devolver respuestas apropiadas con mensajes claros para el cliente. Esto mejora la experiencia del usuario y facilita la depuración.
+
 
 
 
@@ -590,10 +609,6 @@ Authorization: Bearer <token>
 - **Validación del Token:** En el lado del servidor, se interceptan las solicitudes entrantes mediante un filtro de seguridad que valida el JWT. Si el token es válido y no ha expirado, se permite el acceso al recurso solicitado. Si el token es inválido o ha expirado, se devuelve un `401 Unauthorized`.
 
 - **Control de Acceso:** Adicionalmente, se implementan controles de acceso basados en el rol del usuario. Por ejemplo, en el endpoint de eliminación de cuentas, se verifica que el usuario que intenta eliminar una cuenta sea el titular de la misma. Si el usuario no es el titular, se devuelve un `403 Forbidden`.
-
-### Manejo de Errores
-
-En caso de errores durante el proceso de autenticación o autorización (por ejemplo, token inválido o cuenta no encontrada), se utilizan excepciones personalizadas y un controlador global de excepciones (`GlobalExceptionHandler`) para devolver respuestas apropiadas con mensajes claros para el cliente. Esto mejora la experiencia del usuario y facilita la depuración.
 
 
 ## 6. Auditoría y Logging
