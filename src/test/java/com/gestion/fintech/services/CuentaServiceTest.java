@@ -10,10 +10,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class CuentaServiceTest {
@@ -37,9 +37,8 @@ class CuentaServiceTest {
     @Test
     void crearCuenta_shouldReturnCuenta() {
         when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuenta);
-
-        Cuenta cuentaCreada = cuentaService.crearCuenta(cuenta);
-
+        CompletableFuture<Cuenta> cuentaCreadaFuture = cuentaService.crearCuenta(cuenta);
+        Cuenta cuentaCreada = cuentaCreadaFuture.join();
         assertNotNull(cuentaCreada);
         assertEquals("Christian Bravo", cuentaCreada.getTitular());
         assertTrue(cuentaCreada.getNumeroCuenta().startsWith("CUENTA-"));
@@ -50,12 +49,10 @@ class CuentaServiceTest {
     void actualizarCuenta_shouldReturnUpdatedCuenta() {
         Long cuentaId = 1L;
         cuenta.setId(cuentaId);
-
         when(cuentaRepository.findById(cuentaId)).thenReturn(Optional.of(cuenta));
         when(cuentaRepository.save(any(Cuenta.class))).thenReturn(cuenta);
-
-        Cuenta cuentaActualizada = cuentaService.actualizarCuenta(cuentaId, cuenta);
-
+        CompletableFuture<Cuenta> cuentaActualizadaFuture = cuentaService.actualizarCuenta(cuentaId, cuenta);
+        Cuenta cuentaActualizada = cuentaActualizadaFuture.join();
         assertNotNull(cuentaActualizada);
         assertEquals("Christian Bravo", cuentaActualizada.getTitular());
         verify(cuentaRepository, times(1)).findById(cuentaId);
@@ -65,9 +62,7 @@ class CuentaServiceTest {
     @Test
     void eliminarCuenta_shouldNotThrowException() {
         Long cuentaId = 1L;
-
         doNothing().when(cuentaRepository).deleteById(cuentaId);
-
         assertDoesNotThrow(() -> cuentaService.eliminarCuenta(cuentaId));
         verify(cuentaRepository, times(1)).deleteById(cuentaId);
     }
@@ -76,10 +71,8 @@ class CuentaServiceTest {
     void obtenerCuentaPorId_shouldReturnCuenta() {
         Long cuentaId = 1L;
         cuenta.setId(cuentaId);
-
         when(cuentaRepository.findById(cuentaId)).thenReturn(Optional.of(cuenta));
-
-        Cuenta cuentaObtenida = cuentaService.obtenerCuentaPorId(cuentaId);
+        Cuenta cuentaObtenida  = cuentaService.obtenerCuentaPorId(cuentaId);
 
         assertNotNull(cuentaObtenida);
         assertEquals("Christian Bravo", cuentaObtenida.getTitular());
@@ -89,13 +82,10 @@ class CuentaServiceTest {
     @Test
     void obtenerCuentaPorId_shouldThrowException_whenCuentaNotFound() {
         Long cuentaId = 1L;
-
         when(cuentaRepository.findById(cuentaId)).thenReturn(Optional.empty());
-
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             cuentaService.obtenerCuentaPorId(cuentaId);
         });
-
         assertEquals("Cuenta no encontrada", exception.getMessage());
         verify(cuentaRepository, times(1)).findById(cuentaId);
     }

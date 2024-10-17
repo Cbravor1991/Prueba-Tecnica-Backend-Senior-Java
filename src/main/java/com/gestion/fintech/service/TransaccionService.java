@@ -1,5 +1,6 @@
 package com.gestion.fintech.service;
 
+import com.gestion.fintech.exception.CuentaException;
 import com.gestion.fintech.model.Cuenta;
 import com.gestion.fintech.model.Transaccion;
 import com.gestion.fintech.dto.ReporteFinancieroDTO;
@@ -41,8 +42,8 @@ public class TransaccionService {
         logger.info("Obteniendo cuenta con ID: {}", cuentaId);
         return cuentaRepository.findById(cuentaId)
                 .orElseThrow(() -> {
-                    logger.error("Cuenta no encontrada: ID {}", cuentaId);
-                    return new RuntimeException("Cuenta no encontrada");
+
+                    return new CuentaException("Cuenta no encontrada");
                 });
     }
 
@@ -53,7 +54,6 @@ public class TransaccionService {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
 
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-            logger.error("Error en el depósito: el monto debe ser positivo.");
             throw new TransaccionException("El monto debe ser positivo");
         }
 
@@ -78,11 +78,9 @@ public class TransaccionService {
         Cuenta cuenta = obtenerCuentaPorId(cuentaId);
 
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-            logger.error("Error en el retiro: el monto debe ser positivo.");
             throw new TransaccionException("El monto debe ser positivo");
         }
         if (cuenta.getSaldo().compareTo(monto) < 0) {
-            logger.error("Error en el retiro: saldo insuficiente en cuenta ID: {}", cuentaId);
             throw new TransaccionException("Saldo insuficiente");
         }
 
@@ -105,41 +103,31 @@ public class TransaccionService {
     public CompletableFuture<Transaccion> realizarTransferencia(Long cuentaOrigenId, Long cuentaDestinoId, BigDecimal monto) {
         logger.info("Iniciando transferencia de la cuenta ID: {} a la cuenta ID: {}, monto: {}", cuentaOrigenId, cuentaDestinoId, monto);
 
-        try {
-
-            logger.debug("Obteniendo cuenta origen con ID: {}", cuentaOrigenId);
             Cuenta cuentaOrigen = obtenerCuentaPorId(cuentaOrigenId);
 
-
-            logger.debug("Obteniendo cuenta destino con ID: {}", cuentaDestinoId);
             Cuenta cuentaDestino = obtenerCuentaPorId(cuentaDestinoId);
 
 
             if (monto.compareTo(BigDecimal.ZERO) <= 0) {
-                logger.error("Error en la transferencia: el monto debe ser positivo.");
                 throw new TransaccionException("El monto debe ser positivo");
             }
             if (cuentaOrigen.getSaldo().compareTo(monto) < 0) {
-                logger.error("Error en la transferencia: saldo insuficiente en la cuenta origen ID: {}", cuentaOrigenId);
                 throw new TransaccionException("Saldo insuficiente en la cuenta origen");
             }
             if (!cuentaOrigen.getMoneda().equals(cuentaDestino.getMoneda())) {
-                logger.error("Error en la transferencia: monedas distintas entre cuenta origen ID: {} y cuenta destino ID: {}", cuentaOrigenId, cuentaDestinoId);
                 throw new TransaccionException("Las cuentas deben tener el mismo tipo de moneda para realizar la transferencia");
             }
 
-
-            logger.debug("Actualizando saldo de la cuenta origen ID: {}. Saldo anterior: {}, monto a debitar: {}", cuentaOrigenId, cuentaOrigen.getSaldo(), monto);
             cuentaOrigen.setSaldo(cuentaOrigen.getSaldo().subtract(monto));
 
-            logger.debug("Actualizando saldo de la cuenta destino ID: {}. Saldo anterior: {}, monto a acreditar: {}", cuentaDestinoId, cuentaDestino.getSaldo(), monto);
+
             cuentaDestino.setSaldo(cuentaDestino.getSaldo().add(monto));
 
 
-            logger.debug("Guardando cuenta origen actualizada con ID: {}", cuentaOrigenId);
+
             cuentaRepository.save(cuentaOrigen);
 
-            logger.debug("Guardando cuenta destino actualizada con ID: {}", cuentaDestinoId);
+
             cuentaRepository.save(cuentaDestino);
 
 
@@ -150,16 +138,12 @@ public class TransaccionService {
             transaccion.setTipo("TRANSFERENCIA");
             transaccion.setFecha(LocalDateTime.now());
 
-            logger.debug("Guardando transacción de transferencia entre cuentas ID: {} y ID: {}", cuentaOrigenId, cuentaDestinoId);
             Transaccion transaccionGuardada = transaccionRepository.save(transaccion);
 
             logger.info("Transferencia exitosa de la cuenta ID: {} a la cuenta ID: {}, monto: {}", cuentaOrigenId, cuentaDestinoId, monto);
             return CompletableFuture.completedFuture(transaccionGuardada);
 
-        } catch (Exception e) {
-            logger.error("Error en la transferencia de la cuenta ID: {} a la cuenta ID: {}: {}", cuentaOrigenId, cuentaDestinoId, e.getMessage(), e);
-            throw e;
-        }
+
     }
 
     @Async
@@ -194,6 +178,8 @@ public class TransaccionService {
         reporte.setTotalDepositos(totalDepositos);
         reporte.setTotalRetiros(totalRetiros);
         reporte.setSaldoFinal(saldoFinal);
+        reporte.setFechaDesde(fechaDesde);
+        reporte.setFechaHasta(fechaHasta);
 
         logger.info("Reporte financiero generado: {}", reporte);
         return CompletableFuture.completedFuture(reporte);

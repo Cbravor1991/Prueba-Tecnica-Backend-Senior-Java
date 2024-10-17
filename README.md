@@ -4,7 +4,50 @@
 
 ## Documentación
 
-### 1. # Descripción del Proyecto
+
+A continuación se adjunta la documentación de la prueba, sin embargo en este prueba se utilizo 
+swagger, ejecutando la prueba y accediendo a:
+
+```bash
+http://localhost:8080/swagger-ui/index.html#/
+```
+Se pueden ver los endpoints junto a una pequeña descripción de los mismos, y configurando la base de datos
+se pueden probar estos en forma adecuada.
+
+En la sección de los endpoints se explica esto de una manera más adecuada.
+
+## Menú de Contenidos
+
+- [1. Descripción del Proyecto](#1-descripción-del-proyecto)
+- [2. Instalación y Configuración](#2-instalación-y-configuración)
+    - [2.1 Clonar el Repositorio](#21-clonar-el-repositorio)
+    - [2.2 Configurar la Base de Datos](#22-configurar-la-base-de-datos)
+    - [2.3 Ejecutar el Proyecto](#23-ejecutar-el-proyecto)
+    - [2.4 Ejecutar las Pruebas](#24-ejecutar-las-pruebas)
+- [3. Endpoints de la API](#3-endpoints-de-la-api)
+    - [3.1 Endpoint Usuarios](#31-endpoint-usuarios)
+        - [3.1.1 Registro de Usuario](#311-registro-de-usuario)
+        - [3.1.2 Inicio de Sesión](#312-inicio-de-sesión)
+    - [3.2 Endpoints de gestión de cuentas](#32-endpoints-de-gestión-de-cuentas)
+        - [3.2.1 Crear cuenta](#321-crear-cuenta)
+        - [3.2.2 Actualizar cuenta](#322-actualizar-cuenta)
+        - [3.2.3 Eliminar cuenta](#323-eliminar-cuenta)
+    - [3.3 Transacciones](#33-transacciones)
+        - [3.3.1 Realizar un Depósito](#331-realizar-un-depósito)
+        - [3.3.2 Realizar un Retiro](#332-realizar-un-retiro)
+        - [3.3.3 Realizar una Transferencia](#333-realizar-una-transferencia)
+        - [3.3.4 Obtener Historial de Transacciones](#334-obtener-historial-de-transacciones)
+        - [3.3.5 Generar Reporte Financiero](#335-generar-reporte-financiero)
+    
+- [4. Tolerancia a Fallos](#4-tolerancia-a-fallos)
+- [5. Seguridad y Autenticación](#5-seguridad-y-autenticación)
+- [6. Auditoría y Logging](#6-auditoría-y-logging)
+- [7. Testing](#7-testing)
+- [8. Escalabilidad y Rendimiento](#8-escalabilidad-y-rendimiento)
+- [9. Rendimiento](#9-rendimiento)
+
+
+## 1.  Descripción del Proyecto
 
 ## Fintech API
 
@@ -29,11 +72,11 @@ El proyecto está estructurado de la siguiente manera:
 
 Esta estructura modular permite un fácil mantenimiento y escalabilidad, facilitando la adición de nuevas funcionalidades en el futuro.
 
-### 2. Instalación y Configuración
+## 2. Instalación y Configuración
 
 Para clonar el repositorio, configurar la base de datos y ejecutar la API localmente, sigue los siguientes pasos:
 
-#### 2.1 Clonar el Repositorio
+## 2.1 Clonar el Repositorio
 
 1. Abre una terminal o consola.
 2. Ejecuta el siguiente comando para clonar el repositorio:
@@ -43,7 +86,7 @@ Para clonar el repositorio, configurar la base de datos y ejecutar la API localm
    ```bash
    cd Prueba-Tecnica-Backend-Senior-Java
 
-### 2.2 Configurar la Base de Datos
+## 2.2 Configurar la Base de Datos
 
 Asegúrate de tener PostgreSQL instalado y en funcionamiento en tu máquina. Crea una nueva base de datos llamada `fintechdb` utilizando el siguiente comando en la consola de PostgreSQL:
    ```sql
@@ -58,169 +101,59 @@ spring.datasource.username=postgres
 spring.datasource.password=1234
 ```
 
-### 3. Endpoints de la API
+Cambialo según las configuraciones de tu equipo.
 
-### 3.1 Transacciones
+## 2.3 Ejecutar el Proyecto
 
-### 3.1.1 Realizar un Depósito
+1. Abre una terminal o consola en el directorio del proyecto.
+2. Ejecuta el siguiente comando para compilar y ejecutar la aplicación:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+## 2.4 Ejecutar las Pruebas
 
-- **Endpoint:** `POST /api/transacciones/deposito/{cuentaId}`
-- **Descripción:** Permite realizar un depósito en la cuenta especificada.
-- **Request Body:**
-  ```json
-  {
-    "monto": 500.00
-  }
+Para ejecutar las pruebas unitarias y de integración, sigue estos pasos:
 
-### Response:
+1. En la terminal, asegúrate de estar en el directorio del proyecto.
+2. Ejecuta el siguiente comando:
+   ```bash
+   ./mvnw test
+    ```
 
-- **Status 200:** Depósito realizado exitosamente.
 
-  ```json
-  {
-    "id": 1,
-    "monto": 500.00,
-    "tipo": "DEPOSITO",
-    "fecha": "2024-10-16T15:30:00"
-  }
+## 3. Endpoints de la API
+Como funcionalidad adicional a la prueba técnica se documento el proyecto, utilizando Swagger, una vez que se ejecuta
+el proyecto si se accede en el navegador a la siguiente direccion
 
-- **Status 404:** Usuario o cuenta no encontrado.
-- **Status 403:** Usuario no autorizado.
-- **Status 500:** Error en el servidor.
-
-### 3.1.2. Realizar un Retiro
-
-**Endpoint:** `POST /api/transacciones/retiro/{cuentaId}`  
-**Descripción:** Realiza un retiro de la cuenta especificada.
-
-### Request Body:
-```json
-{
-  "monto": 200.00
-}
+```bash
+http://localhost:8080/swagger-ui/index.html#/
 ```
 
-### Response:
+y de esta forma se puede acceder a la interfaz que brinda el mismo donde se pueden ver y probar todos los endpoints,
+el mismo esta configurado de tal manera que se pueda, realizar la autorización a los endpoints confidenciales 
+utilizando el token.
+![documentacion1](./imagenes/doc1.png)
+![documentacion2](./imagenes/doc2.png)
 
-- **Status 200:** Retiro realizado exitosamente.
-
-```json
-{
-  "id": 2,
-  "monto": 200.00,
-  "tipo": "RETIRO",
-  "fecha": "2024-10-16T15:45:00"
-}
-```
-- **Status 404:** Usuario o cuenta no encontrado.
-- **Status 403:** Usuario no autorizado.
-- **Status 500:** Error en el servidor.
-
-### 3.1.3 Realizar una Transferencia
-
-**Endpoint:** `POST /api/transacciones/transferencia/{cuentaOrigenId}`  
-**Descripción:** Permite realizar una transferencia desde una cuenta de origen a una cuenta destino.
-
-### Request Body:
-```json
-{
-"monto": 300.00,
-"cuentaDestinoId": 5
-}
-```
-
-### Response:
-
-- **Status 200:** Retiro realizado exitosamente.
-```json
-{
-"id": 3,
-"monto": 300.00,
-"tipo": "TRANSFERENCIA",
-"fecha": "2024-10-16T16:00:00",
-"cuentaDestinoId": 5
-}
-```
-
-- **Status 404:** Usuario o cuenta no encontrado.
-- **Status 403:** Usuario no autorizado.
-- **Status 500:** Error en el servidor.
-
-## 3.1.4. Obtener Historial de Transacciones
-
-**Endpoint:** `GET /api/transacciones/historial/{cuentaId}`  
-**Descripción:** Devuelve el historial de transacciones de una cuenta.
-
-### Query Params:
-- **tipo** (opcional): Filtrar por tipo de transacción (DEPOSITO, RETIRO, TRANSFERENCIA).
-- **fechaDesde** (opcional): Filtrar desde una fecha específica.
-- **fechaHasta** (opcional): Filtrar hasta una fecha específica.
-- **page** (opcional): Número de página (default: 0).
-- **size** (opcional): Tamaño de página (default: 10).
-
-### Response:
-- **Status 200:** Historial de transacciones.
-```json
-[
-{
-"id": 1,
-"monto": 500.00,
-"tipo": "DEPOSITO",
-"fecha": "2024-10-16T15:30:00"
-},
-{
-"id": 2,
-"monto": 200.00,
-"tipo": "RETIRO",
-"fecha": "2024-10-16T15:45:00"
-}
-]
-```
-- **Status 404:** Usuario o cuenta no encontrado.
-- **Status 403:** Usuario no autorizado.
-- **Status 500:** Error en el servidor.
-
-## 3.1.5. Generar Reporte Financiero
-
-**Endpoint:** `GET /api/transacciones/reportes/{cuentaId}`  
-**Descripción:** Genera un reporte financiero para una cuenta en un rango de fechas.
-
-### Query Params:
-- **fechaDesde:** Fecha inicial del reporte.
-- **fechaHasta:** Fecha final del reporte.
-
-### Response:
-- **Status 200:** Reporte financiero generado.
-
-```json
-{
-"saldoInicial": 1000.00,
-"totalDepositos": 500.00,
-"totalRetiros": 200.00,
-"saldoFinal": 1300.00,
-"fechaDesde": "2024-10-01T00:00:00",
-"fechaHasta": "2024-10-16T23:59:59"
-}
-
-```
-
-- **Status 404:** Usuario o cuenta no encontrado.
-- **Status 403:** Usuario no autorizado.
-- **Status 500:** Error en el servidor.
+Para probar todos los endpoints primero es necesario tener un usuario, registrado y luego loguearse con el mismo.
+Para realiza una prueba manual se pueden ejecutar los endpoints en el siguiente orden.
 
 
-### 3.2 Usuarios
 
-### 3.2.1 Registro de Usuario
+
+
+## 3.1 Endpoint Usuarios
+
+### 3.1.1 Registro de Usuario
 
 - **Endpoint:** `POST /api/auth/register`
 - **Descripción:** Permite registrar un nuevo usuario en el sistema.
 - **Request Body:**
   ```json
   {
-      "username": "nuevo_usuario",
-      "password": "contraseña_segura",
-      "nombreCompleto": "Nombre Completo"
+      "username": "christian",
+      "password": "1234",
+      "nombreCompleto": "Christian Bravo"
   }
   ```
 
@@ -232,14 +165,15 @@ spring.datasource.password=1234
 
  ```json
 {
-"id": 1,
-"username": "nuevo_usuario",
-"nombreTitular": "Nombre Completo",
-"role": "USER"
+  "id": 1,
+  "username": "christian",
+  "passwordHash": "$2a$10$tGVifeTn.WO........",
+  "role": "USER",
+  "nombreTitular": "Christian Bravo"
 }
   ```
 
-## 3.2. Inicio de Sesión
+## 3.1.2. Inicio de Sesión
 
 **Endpoint:** `POST /api/auth/login`
 
@@ -249,8 +183,8 @@ spring.datasource.password=1234
  ```json
 
 {
-"username": "usuario_existente",
-"password": "contraseña_correcta"
+"username": "christian",
+"password": "1234"
 }
 ```
 
@@ -265,18 +199,16 @@ spring.datasource.password=1234
 }
 ```
 
-### Respuesta de Error:
 
-- **Código de Estado:** 401 Unauthorized
-- **Cuerpo de Respuesta:*
 
-```json
-"Credenciales inválidas"
-```
+## 3.2. Endpoints de gestión de cuentas
+Para acceder a los siguientes endpoints protegidos, es necesario autenticarse utilizando un token Bearer.
+Esto se realiza añadiendo el token en el header Authorization en el siguiente seleccionando el candado, se abrira
+el siguiente menú donde colocar el token:
 
-## 3.3. Endpoints de gestión de cuentas
+![documentacion3](./imagenes/doc3.png)
 
-### 3.3.1. Crear cuenta
+### 3.2.1. Crear cuenta
 
 **Endpoint:** `POST /api/cuentas`  
 **Descripción:** Permite crear una nueva cuenta asociada al usuario autenticado.
@@ -284,34 +216,8 @@ spring.datasource.password=1234
 #### Request Body:
 ```json
 {
-  "saldo": 1000.00,
+  "saldo": 15000,
   "moneda": "USD"
-}
-```
-
-### Response:
-
-- **200 OK**
-```json
-{
-"id": 1,
-"numeroCuenta": "NUMERO_AUTOGENERADO",
-"titular": "string",
-"saldo": 1000.00,
-"moneda": "USD"
-}
-```
-
-### 3.3.2. Actualizar cuenta
-
-**Endpoint:** `PUT /api/cuentas/{id}`  
-**Descripción:** Permite actualizar los detalles de una cuenta existente.
-
-#### Request Body
-```json
-{
-"saldo": 2000.00,
-"moneda": "USD"
 }
 ```
 
@@ -321,24 +227,350 @@ spring.datasource.password=1234
 ```json
 {
   "id": 1,
-  "numeroCuenta": "NUMERO_AUTOGENERADO",
-  "titular": "string",
-  "saldo": 2000.00,
+  "numeroCuenta": "CUENTA-1729148076251",
+  "titular": "Christian Bravo",
+  "saldo": 15000,
   "moneda": "USD"
+}
+```
+
+### 3.2.2. Actualizar cuenta
+
+**Endpoint:** `PUT /api/cuentas/{id}`  
+**Descripción:** Permite actualizar los detalles de una cuenta existente.
+
+### Path Variable
+- **id** (requerido): El ID de la cuenta que se desea actualizar.
+
+#### Request Body
+```json
+{
+"saldo": 20000,
+"moneda": "EUR"
+}
+```
+
+### Response:
+
+- **200 OK**
+```json
+{
+  "id": 1,
+  "numeroCuenta": "CUENTA-1729148076251",
+  "titular": "Christian Bravo",
+  "saldo": 15250,
+  "moneda": "EUR"
 }
 
 ```
 
-### 3.3.3 Eliminar cuenta
+## 3.2.3 Eliminar cuenta
 
 **Endpoint:** `DELETE /api/cuentas/{id}`  
 **Descripción:** Permite eliminar una cuenta existente.
 
+
+### Path Variable
+- **id** (requerido): El ID de la cuenta que se desea eliminar.
+
 ### Response:
 - **204 No Content**
 - **403 Forbidden**
+
+## 3.1 Transacciones
+
+Para acceder a los siguientes endpoints protegidos, es necesario autenticarse utilizando un token Bearer.
+
+### 3.1.1 Realizar un Depósito
+
+- **Endpoint:** `POST /api/transacciones/deposito/{cuentaId}`
+- **Descripción:** Permite realizar un depósito en la cuenta especificada.
+### Path Variable
+- **id** (requerido): El ID de la cuenta que se desea depositar dinero.
+
 - 
-## 4. Seguridad y Autenticación
+- **Request Body:**
+  ```json
+  {
+    "monto": 500
+  }
+
+### Response:
+
+- **Status 200:** Depósito realizado exitosamente.
+
+  ```json
+  {
+  "id": 2,
+  "cuentaOrigenId": 2,
+  "cuentaDestinoId": null,
+  "monto": 500,
+  "tipo": "DEPOSITO",
+  "fecha": [
+    2024,
+    10,
+    17,
+    4,
+    55,
+    1,
+    714246500
+  ]
+  }
+
+
+
+### 3.1.2. Realizar un Retiro
+
+**Endpoint:** `POST /api/transacciones/retiro/{cuentaId}`  
+**Descripción:** Realiza un retiro de la cuenta especificada.
+### Path Variable
+- **id** (requerido): El ID de la cuenta que se desea retirar dinero.
+
+### Request Body:
+```json
+{
+  "monto": 200.00
+}
+```
+
+### Response:
+
+- **Status 200:** Retiro realizado exitosamente.
+
+```json
+
+{
+  "id": 3,
+  "cuentaOrigenId": 2,
+  "cuentaDestinoId": null,
+  "monto": 500,
+  "tipo": "RETIRO",
+  "fecha": [
+    2024,
+    10,
+    17,
+    4,
+    57,
+    11,
+    668440500
+  ]
+}
+
+```
+
+### 3.1.3 Realizar una Transferencia
+
+Para realizar una trasferencia en necesario tener más de una cuenta sino dara error:
+
+**Endpoint:** `POST /api/transacciones/transferencia/{cuentaOrigenId}`  
+**Descripción:** Permite realizar una transferencia desde una cuenta de origen a una cuenta destino.
+### Path Variable
+- **id** (requerido): El ID de la cuenta de origén para transferir dinero.
+
+### Request Body:
+```json
+{
+"monto": 300.00,
+"cuentaDestinoId": 5
+}
+```
+
+### Response:
+
+- **Status 200:** Transferencia realizado exitosamente.
+```json
+{
+  "id": 4,
+  "cuentaOrigenId": 2,
+  "cuentaDestinoId": 4,
+  "monto": 320,
+  "tipo": "TRANSFERENCIA",
+  "fecha": [
+    2024,
+    10,
+    17,
+    5,
+    4,
+    2,
+    431062900
+  ]
+```
+
+
+## 3.1.4. Obtener Historial de Transacciones
+En caso que no se pasen datos que coincian se devolvera una lista vacia.
+
+**Endpoint:** `GET /api/transacciones/historial/{cuentaId}`  
+**Descripción:** Devuelve el historial de transacciones de una cuenta.
+
+### Path Variable
+- **id** (requerido): El ID de la cuenta de la cual se quiere tener el historial.
+
+
+### Query Params:
+- **tipo** : Filtrar por tipo de transacción (DEPOSITO, RETIRO, TRANSFERENCIA).
+- **fechaDesde** : Filtrar desde una fecha específica.
+- **fechaHasta** : Filtrar hasta una fecha específica.
+- **page** : Número de página (default: 0).
+- **size** : Tamaño de página (default: 10).
+
+### Query Params:
+- **tipo** : DEPOSITO.
+- **fechaDesde** : 2024-10-17T00:00:00
+- **fechaHasta** : 2024-10-19T08:00:00
+- **page** : Número de página (default: 0).
+- **size** : Tamaño de página (default: 10).
+
+### Response:
+- **Status 200:** Historial de transacciones.
+```json
+[
+  {
+    "id": 2,
+    "cuentaOrigenId": 2,
+    "cuentaDestinoId": null,
+    "monto": 500,
+    "tipo": "DEPOSITO",
+    "fecha": [
+      2024,
+      10,
+      17,
+      4,
+      55,
+      1,
+      714247000
+    ]
+  }
+]
+```
+
+
+## 3.1.5. Generar Reporte Financiero
+
+**Endpoint:** `GET /api/transacciones/reportes/{cuentaId}`  
+**Descripción:** Genera un reporte financiero para una cuenta en un rango de fechas.
+
+
+### Path Variable
+- **id** (requerido): El ID de la cuenta que se desea generar el reporte.
+
+
+### Query Params:
+- **fechaDesde:** Fecha inicial del reporte.
+- **fechaHasta:** Fecha final del reporte.
+
+### Query Params:
+- **fechaDesde** : 2024-10-17T00:00:00
+- **fechaHasta** : 2024-10-19T08:00:00
+
+### Response:
+- **Status 200:** Reporte financiero generado.
+
+```json
+{
+  "saldoInicial": 14680,
+  "totalDepositos": 0,
+  "totalRetiros": 0,
+  "saldoFinal": 14680,
+  "fechaDesde": [
+    2024,
+    10,
+    1,
+    0,
+    0
+  ],
+  "fechaHasta": [
+    2024,
+    10,
+    16,
+    23,
+    59,
+    59
+  ]
+}
+
+```
+## 4. Tolerancia a Fallos
+
+Implementa un manejo de excepciones robusto para garantizar que las transacciones financieras no se pierdan o generen inconsistencias en caso de errores. 
+En lugar de usar bloques try-catch, se han creado excepciones personalizadas para cada servicio, lo que permite un manejo más limpio y centralizado de los errores,
+aunque esto en el enunciado de la prueba solo se solicitaba para el servicio de transacciones, se implemento en cada servicio con el fin de unificar criterios.
+
+### Códigos de Error y Mensajes
+
+| Código de Estado | Error                          | Mensaje de Error                                    |
+|------------------|--------------------------------|-----------------------------------------------------|
+| 400              | IllegalArgumentException       | Parámetros inválidos en la solicitud.               |
+| 400              | TransaccionException           | Error en la transacción, verifique los detalles.   |
+| 400              | CuentaException                | Error relacionado con la cuenta, revise la cuenta. |
+| 400              | UsuarioException               | Credenciales inválidas o el usuario ya existe.     |
+| 404              | RuntimeException               | No encontrado.                                      |
+| 500              | Exception                      | Ocurrió un error inesperado: {mensaje}.             |
+
+### Posibles Fallos en el Servicio de Transacciones, Cuentas y Usuarios
+
+1. **Depósito**:
+  - **Excepción**: `TransaccionException`
+    - Mensaje: "El monto debe ser positivo"
+  - **Excepción**: `CuentaException`
+    - Mensaje: "Cuenta no encontrada"
+
+2. **Retiro**:
+  - **Excepción**: `TransaccionException`
+    - Mensaje: "El monto debe ser positivo"
+  - **Excepción**: `TransaccionException`
+    - Mensaje: "Saldo insuficiente"
+  - **Excepción**: `CuentaException`
+    - Mensaje: "Cuenta no encontrada"
+
+3. **Transferencia**:
+  - **Excepción**: `TransaccionException`
+    - Mensaje: "El monto debe ser positivo"
+  - **Excepción**: `TransaccionException`
+    - Mensaje: "Saldo insuficiente en la cuenta origen"
+  - **Excepción**: `TransaccionException`
+    - Mensaje: "Las cuentas deben tener el mismo tipo de moneda para realizar la transferencia"
+  - **Excepción**: `CuentaException`
+    - Mensaje: "Cuenta no encontrada"
+
+4. **Historial de Transacciones**:
+  - **Excepción**: `CuentaException`
+    - Mensaje: "Cuenta no encontrada"
+
+5. **Reporte Financiero**:
+  - **Excepción**: `CuentaException`
+    - Mensaje: "Cuenta no encontrada"
+
+6. **Crear Cuenta**:
+  - **Excepción**: `CuentaException`
+    - Mensaje: "Usuario no encontrado"
+
+7. **Actualizar Cuenta**:
+  - **Excepción**: `CuentaException`
+    - Mensaje: "No tiene permiso para actualizar esta cuenta"
+
+8. **Eliminar Cuenta**:
+  - **Excepción**: `CuentaException`
+    - Mensaje: "No tiene permiso para eliminar esta cuenta"
+
+9. **Registrar Usuario**:
+  - **Excepción**: `UsuarioException`
+    - Mensaje: "El usuario ya existe."
+
+10. **Autenticar Usuario**:
+  - **Excepción**: `UsuarioException`
+    - Mensaje: "Credenciales inválidas"
+
+11. **Cargar Detalles de Usuario**:
+  - **Excepción**: `UsuarioException`
+    - Mensaje: "Usuario no encontrado: {username}"
+
+
+
+
+
+
+## 5. Seguridad y Autenticación
 
 La API está protegida mediante un sistema de autenticación y autorización basado en JSON Web Tokens (JWT). Este enfoque asegura que solo los usuarios autenticados y autorizados puedan acceder a los recursos de la API, como la creación, actualización y eliminación de cuentas.
 
@@ -364,22 +596,25 @@ Authorization: Bearer <token>
 En caso de errores durante el proceso de autenticación o autorización (por ejemplo, token inválido o cuenta no encontrada), se utilizan excepciones personalizadas y un controlador global de excepciones (`GlobalExceptionHandler`) para devolver respuestas apropiadas con mensajes claros para el cliente. Esto mejora la experiencia del usuario y facilita la depuración.
 
 
-## 5. Auditoría y Logging
+## 6. Auditoría y Logging
 
-La aplicación implementa un sistema de auditoría y logging para rastrear las acciones realizadas en la API y proporcionar un registro detallado de las operaciones que afectan a las cuentas de usuario. Este enfoque ayuda en el diagnóstico de problemas, mejora la seguridad y facilita el cumplimiento normativo.
+La aplicación implementa un sistema de auditoría y logging para rastrear las acciones realizadas en la API y proporcionar un registro detallado 
+de las operaciones que afectan a las cuentas de usuario (transaccione, altas bajas, etc). 
+Este enfoque ayuda en el diagnóstico de problemas, mejora la seguridad y puede ser utilizado en futuras auditorias.
 
-### 5.1 Sistema de Logging
+### 6.1 Sistema de Logging
 
-#### 5.1.1 Uso de SLF4J
-La aplicación utiliza **SLF4J (Simple Logging Facade for Java)** junto con una implementación de logging, como **Logback**, para manejar los logs. Esta elección permite una gestión flexible y eficiente de los mensajes de log, ajustando el nivel de detalle según las necesidades del entorno (desarrollo, prueba, producción).
+#### 6.1.1 Uso de SLF4J
+La aplicación utiliza **SLF4J (Simple Logging Facade for Java)** junto con una implementación de logging, como **Logback**, para manejar los logs. Esta elección permite una gestión flexible y eficiente de los mensajes de log, ajustando el nivel de detalle según las necesidades del entorno.
 
-#### 5.1.2 Niveles de Log
-Se registran mensajes en diferentes niveles (info, error, warn) dependiendo de la gravedad del evento. Por ejemplo:
+#### 6.1.2 Niveles de Log
+Se registran mensajes en diferentes niveles (info, error, warn) dependiendo de la gravedad del evento. 
+En nuestra prueba solo usamos info, ya que se nos solicita generar los log para posibles auditorias no para encontrar problemas de ejecución.
 
-- **Info**: Se registran eventos importantes, como la creación y actualización de cuentas. Esto permite auditar las operaciones realizadas por los usuarios y tener un seguimiento de las acciones significativas.
+- **Info**: Se registran eventos importantes, como la creación, actualización de cuentas, así como las diversas transacciones. 
+- Esto permite auditar las operaciones realizadas por los usuarios y tener un seguimiento de las acciones significativas.
 
-- **Error**: Se registran errores y excepciones críticas que ocurren durante la ejecución de la aplicación, lo que facilita la identificación y solución de problemas.
-#### 5.1.3 Registro de Eventos Clave
+
 Cada acción relacionada con la gestión de cuentas se registra. Por ejemplo, en la clase **CuentaService**, se registra cuando se crea, actualiza o elimina una cuenta:
 
 - **Creación de cuenta**: Se registra un mensaje indicando que se ha creado una nueva cuenta, incluyendo detalles relevantes como el ID de la cuenta y el saldo inicial.
@@ -394,26 +629,26 @@ logger.info("Creando nueva cuenta para el titular: {}", cuenta.getTitular());
 logger.info("Cuenta creada exitosamente con ID: {}", cuentaGuardada.getId());
 ```
 
-### 5.2 Configuración de Logging
+### 6.2 Configuración de Logging
 
 La configuración de logging está definida en el archivo **logback.xml**, donde se han establecido dos appenders:
 
 - **CONSOLE**: Este appender permite la visualización de logs en la consola con un patrón de salida bien estructurado, facilitando el monitoreo en tiempo real de las operaciones.
 
-- **FILE**: Este appender registra los logs en archivos, utilizando un **RollingFileAppender** para archivar automáticamente los logs diarios y mantener un historial de hasta 30 días. Esto asegura que se conserve un registro histórico de las actividades de la API sin sobrecargar el sistema con archivos de log antiguos.
+- **FILE**: Este appender registra los logs en archivos, utilizando un **RollingFileAppender** para archivar automáticamente los logs diarios y mantener un historial de hasta 30 días. 
+Esto asegura que se conserve un registro histórico de las actividades de la API sin sobrecargar el sistema con archivos de log antiguos.
 
 
 
+### 7. Testing
 
-
-
-
-### 6. Testing
-
-A pesar de que la prueba no requería la implementación de pruebas unitarias, considero fundamental garantizar la calidad y el correcto funcionamiento de nuestros servicios mediante la creación de pruebas automatizadas. Estas pruebas están diseñadas para verificar el comportamiento esperado de los servicios **CuentaService**, **TransaccionService** y **UsuarioService**. A continuación, se describen brevemente las pruebas realizadas:
+Aunque la prueba no requería la implementación de pruebas unitarias, considero fundamental garantizar 
+la calidad y el correcto funcionamiento de nuestros servicios mediante la creación de pruebas automatizadas. 
+Estas pruebas están diseñadas para verificar el comportamiento esperado de los servicios **CuentaService**, **TransaccionService** y **UsuarioService**.
+A continuación, se describen brevemente las pruebas realizadas:
 
 ### Ubicación de las Pruebas
-**src/test/java/com/gestion/fintech/services**
+`src/test/java/com/gestion/fintech/services`
 
 ### CuentaServiceTest
 - **crearCuenta_shouldReturnCuenta**:
@@ -472,13 +707,15 @@ A pesar de que la prueba no requería la implementación de pruebas unitarias, c
 - **testAutenticarUsuario_Fail**:
   - Asegura que no se retorne ningún usuario si las credenciales son incorrectas.
 
-## 7. Escalabilidad
 
-La API está preparada para manejar un alto volumen de solicitudes concurrentes gracias al uso de la anotación `@Async` y `CompletableFuture`. Esto permite que las operaciones críticas, como depósitos, retiros, transferencias, y la generación de reportes o historial de transacciones, se ejecuten de manera asíncrona, liberando el hilo principal y permitiendo que el sistema gestione múltiples solicitudes simultáneamente sin bloqueo.
+## 8. Escalabilidad
+
+La API está preparada para manejar un alto volumen de solicitudes concurrentes gracias al uso de la anotación `@Async` y `CompletableFuture`. 
+Esto permite que las operaciones críticas, como depósitos, retiros, transferencias, y la generación de reportes o historial de transacciones, se ejecuten de manera asíncrona, liberando el hilo principal y permitiendo que el sistema gestione múltiples solicitudes simultáneamente sin bloqueo.
 
 La decisión de utilizar `@Async` junto con `CompletableFuture` garantiza que las tareas de larga duración no afecten el rendimiento general de la API, permitiendo la concurrencia controlada sin necesidad de complejos manejos de hilos manuales. Además, cada operación está diseñada para ser transaccional, lo que asegura la consistencia de los datos en escenarios concurrentes.
 
-## 8. Rendimiento
+## 9. Rendimiento
 
 Para optimizar el rendimiento en las consultas a la base de datos, se han implementado varias técnicas. Se utilizan índices en las columnas más consultadas de la tabla `Transaccion`, como `cuenta_origen_id`, `cuenta_destino_id`, `tipo` y `fecha`, lo cual mejora significativamente los tiempos de búsqueda y filtrado de datos. Estas son las definiciones de índices utilizadas:
 

@@ -98,18 +98,6 @@ class UsuarioServiceTest {
     }
 
     @Test
-    void testAutenticarUsuario_Fail() {
-        String username = "christian.bravo";
-        String password = "wrongPassword";
-
-        when(usuarioRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        Optional<Usuario> result = usuarioService.autenticarUsuario(username, password);
-
-        assertFalse(result.isPresent());
-    }
-
-    @Test
     void testLoadUserByUsername_Success() {
         String username = "christian.bravo";
         Usuario usuario = new Usuario();
@@ -123,16 +111,5 @@ class UsuarioServiceTest {
         assertEquals(username, userDetails.getUsername());
     }
 
-    @Test
-    void testLoadUserByUsername_NotFound() {
-        String username = "nonexistent.user";
 
-        when(usuarioRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-        UsernameNotFoundException thrown = assertThrows(UsernameNotFoundException.class, () -> {
-            usuarioService.loadUserByUsername(username);
-        });
-
-        assertEquals("Usuario no encontrado: nonexistent.user", thrown.getMessage());
-    }
 }

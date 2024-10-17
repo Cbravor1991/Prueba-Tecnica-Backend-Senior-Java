@@ -1,5 +1,6 @@
 package com.gestion.fintech.service;
 
+import com.gestion.fintech.exception.UsuarioException;
 import com.gestion.fintech.model.Usuario;
 import com.gestion.fintech.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,7 @@ public class UsuarioService implements UserDetailsService {
         logger.info("Registrando nuevo usuario: {}", username);
 
         if (usuarioRepository.findByUsername(username).isPresent()) {
-            logger.error("Error: El usuario ya existe con el nombre de usuario: {}", username);
-            throw new RuntimeException("El usuario ya existe.");
+            throw new UsuarioException("El usuario ya existe.");
         }
 
         Usuario usuario = new Usuario();
@@ -54,8 +54,8 @@ public class UsuarioService implements UserDetailsService {
             return usuario;
         }
 
-        logger.error("Error en la autenticación: usuario o contraseña incorrectos para: {}", username);
-        return Optional.empty();
+
+        throw new UsuarioException("Credenciales inválidas");
     }
 
     @Override
@@ -73,8 +73,7 @@ public class UsuarioService implements UserDetailsService {
                         .disabled(false)
                         .build())
                 .orElseThrow(() -> {
-                    logger.error("Error: Usuario no encontrado: {}", username);
-                    return new UsernameNotFoundException("Usuario no encontrado: " + username);
+                    return new UsuarioException("Usuario no encontrado: " + username);
                 });
     }
 
