@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/transacciones")
@@ -31,6 +32,15 @@ public class TransaccionController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    private <T> T getFutureResult(CompletableFuture<T> future) {
+        try {
+            return future.join();
+        } catch (Exception e) {
+
+            throw new RuntimeException("Error al obtener el resultado del futuro: " + e.getMessage(), e);
+        }
+    }
+
     @PostMapping("/deposito/{cuentaId}")
     public ResponseEntity<Transaccion> realizarDeposito(@PathVariable Long cuentaId, @RequestBody TransaccionInterCuentaDTO request) {
         try {
@@ -44,7 +54,8 @@ public class TransaccionController {
             if (!cuenta.getTitular().equals(nombreTitular)) {
                 return ResponseEntity.status(403).body(null);
             }
-            Transaccion transaccion = transaccionService.realizarDeposito(cuentaId, request.getMonto());
+
+            Transaccion transaccion = getFutureResult(transaccionService.realizarDeposito(cuentaId, request.getMonto()));
             return ResponseEntity.ok(transaccion);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -64,7 +75,8 @@ public class TransaccionController {
             if (!cuenta.getTitular().equals(nombreTitular)) {
                 return ResponseEntity.status(403).body(null);
             }
-            Transaccion transaccion = transaccionService.realizarRetiro(cuentaId, request.getMonto());
+
+            Transaccion transaccion = getFutureResult(transaccionService.realizarRetiro(cuentaId, request.getMonto()));
             return ResponseEntity.ok(transaccion);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -84,7 +96,8 @@ public class TransaccionController {
             if (!cuentaOrigen.getTitular().equals(nombreTitular)) {
                 return ResponseEntity.status(403).body(null);
             }
-            Transaccion transaccion = transaccionService.realizarTransferencia(cuentaOrigenId, request.getCuentaDestinoId(), request.getMonto());
+
+            Transaccion transaccion = getFutureResult(transaccionService.realizarTransferencia(cuentaOrigenId, request.getCuentaDestinoId(), request.getMonto()));
             return ResponseEntity.ok(transaccion);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -111,13 +124,12 @@ public class TransaccionController {
                 return ResponseEntity.status(403).body(null);
             }
 
-            List<Transaccion> historial = transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta, page, size);
+            List<Transaccion> historial = getFutureResult(transaccionService.obtenerHistorial(cuentaId, tipo, fechaDesde, fechaHasta, page, size));
             return ResponseEntity.ok(historial);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }
     }
-
 
     @GetMapping("/reportes/{cuentaId}")
     public ResponseEntity<ReporteFinancieroDTO> generarReporte(@PathVariable Long cuentaId,
@@ -134,7 +146,9 @@ public class TransaccionController {
             if (!cuenta.getTitular().equals(nombreTitular)) {
                 return ResponseEntity.status(403).body(null);
             }
-            ReporteFinancieroDTO reporte = transaccionService.generarReporteFinanciero(cuentaId, fechaDesde, fechaHasta);
+
+
+            ReporteFinancieroDTO reporte = getFutureResult(transaccionService.generarReporteFinanciero(cuentaId, fechaDesde, fechaHasta));
             return ResponseEntity.ok(reporte);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);

@@ -3,10 +3,12 @@ package com.gestion.fintech.service;
 import com.gestion.fintech.model.Cuenta;
 import com.gestion.fintech.repository.CuentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CuentaService {
@@ -17,6 +19,7 @@ public class CuentaService {
     @Autowired
     private CuentaRepository cuentaRepository;
 
+    @Async
     @Transactional
     public Cuenta crearCuenta(Cuenta cuenta) {
         logger.info("Creando nueva cuenta para el titular: {}", cuenta.getTitular());
@@ -30,6 +33,7 @@ public class CuentaService {
         return cuentaGuardada;
     }
 
+    @Async
     @Transactional
     public Cuenta actualizarCuenta(Long id, Cuenta cuenta) {
         logger.info("Actualizando cuenta con ID: {}", id);
@@ -49,6 +53,7 @@ public class CuentaService {
         return cuentaActualizada;
     }
 
+    @Async
     @Transactional
     public void eliminarCuenta(Long id) {
         logger.info("Eliminando cuenta con ID: {}", id);
